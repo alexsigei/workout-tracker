@@ -2,6 +2,7 @@ from flask import Flask
 from config import Config
 from extensions import db, migrate, bcrypt, jwt
 from models import User, Workout
+from resources.auth import auth_bp
 
 
 def create_app():
@@ -15,6 +16,9 @@ def create_app():
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
+
+    # Register authentication routes
+    app.register_blueprint(auth_bp)
 
     @app.route("/")
     def home():

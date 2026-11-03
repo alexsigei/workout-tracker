@@ -12,7 +12,7 @@ class Config:
 
     JWT_SECRET_KEY = os.environ.get(
         "JWT_SECRET_KEY",
-        "dev-jwt-secret-key"
+        "local-dev-jwt-secret-key-at-least-32-characters"
     )
 
     JWT_ACCESS_TOKEN_EXPIRES = 3600
