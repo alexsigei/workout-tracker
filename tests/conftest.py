@@ -2,14 +2,11 @@ import pytest
 
 from app import create_app
 from extensions import db
-from models import User
 
 
 @pytest.fixture
 def app():
-    test_app = create_app()
-
-    test_app.config.update({
+    test_app = create_app({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite://",
         "JWT_SECRET_KEY": "test-secret-key-that-is-at-least-32-characters"
@@ -31,7 +28,8 @@ def client(app):
 def authenticated_user(client):
     client.post("/signup", json={
         "username": "testuser",
-        "password": "password123"
+        "password": "password123",
+        "password_confirmation": "password123"
     })
 
     response = client.post("/login", json={
@@ -39,7 +37,7 @@ def authenticated_user(client):
         "password": "password123"
     })
 
-    token = response.json["access_token"]
+    token = response.json["token"]
 
     return {
         "headers": {

@@ -6,19 +6,19 @@ from resources.auth import auth_bp
 from resources.workouts import workouts_bp
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
-
-    # Load application configuration
     app.config.from_object(Config)
 
-    # Initialize extensions
+    # Apply test settings before initializing extensions.
+    if test_config:
+        app.config.update(test_config)
+
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
 
-    # Register authentication routes
     app.register_blueprint(auth_bp)
     app.register_blueprint(workouts_bp)
 

@@ -117,7 +117,8 @@ def test_user_cannot_access_another_users_workout(
     # Create and authenticate a second user
     client.post("/signup", json={
         "username": "anotheruser",
-        "password": "password123"
+        "password": "password123",
+        "password_confirmation": "password123"
     })
 
     login_response = client.post("/login", json={
@@ -127,7 +128,7 @@ def test_user_cannot_access_another_users_workout(
 
     other_headers = {
         "Authorization": (
-            f"Bearer {login_response.json['access_token']}"
+            f"Bearer {login_response.json['token']}"
         )
     }
 

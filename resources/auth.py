@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request
 from flask_jwt_extended import (
     create_access_token,
@@ -15,21 +14,33 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"errors": ["A valid JSON object is required"]}, 400
 
     username = data.get("username")
     password = data.get("password")
+    password_confirmation = data.get("password_confirmation")
 
-    if not username or not password:
-        return {"error": "Username and password are required"}, 400
+    if not isinstance(username, str) or not username.strip():
+        return {"errors": ["Username is required"]}, 400
+
+    if not isinstance(password, str) or not password:
+        return {"errors": ["Password is required"]}, 400
 
     if len(password) < 8:
-        return {"error": "Password must be at least 8 characters"}, 400
+        return {"errors": ["Password must be at least 8 characters"]}, 400
+
+    if password != password_confirmation:
+        return {"errors": ["Passwords do not match"]}, 400
+
+    username = username.strip()
 
     existing_user = User.query.filter_by(username=username).first()
 
     if existing_user:
-        return {"error": "Username already exists"}, 409
+        return {"errors": ["Username already exists"]}, 409
 
     user = User(username=username)
     user.set_password(password)
@@ -37,8 +48,10 @@ def signup():
     db.session.add(user)
     db.session.commit()
 
+    token = create_access_token(identity=str(user.id))
+
     return {
-        "message": "User registered successfully",
+        "token": token,
         "user": {
             "id": user.id,
             "username": user.username
@@ -48,26 +61,33 @@ def signup():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"errors": ["A valid JSON object is required"]}, 400
 
     username = data.get("username")
     password = data.get("password")
 
-    if not username or not password:
-        return {"error": "Username and password are required"}, 400
+    if not isinstance(username, str) or not username.strip():
+        return {"errors": ["Username is required"]}, 400
 
-    user = User.query.filter_by(username=username).first()
+    if not isinstance(password, str) or not password:
+        return {"errors": ["Password is required"]}, 400
+
+    user = User.query.filter_by(username=username.strip()).first()
 
     if not user or not user.check_password(password):
-        return {"error": "Invalid username or password"}, 401
+        return {"errors": ["Invalid username or password"]}, 401
 
-    access_token = create_access_token(
-        identity=str(user.id)
-    )
+    token = create_access_token(identity=str(user.id))
 
     return {
-        "message": "Login successful",
-        "access_token": access_token
+        "token": token,
+        "user": {
+            "id": user.id,
+            "username": user.username
+        }
     }, 200
 
 
@@ -78,7 +98,7 @@ def get_me():
     user = db.session.get(User, user_id)
 
     if not user:
-        return {"error": "User not found"}, 404
+        return {"errors": ["User not found"]}, 404
 
     return {
         "id": user.id,
