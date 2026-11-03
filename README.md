@@ -1,24 +1,27 @@
 # Workout Tracker API
 
-A Flask REST API for managing personal workout records. Users can create accounts, log in, and manage their workouts securely.
+A Flask REST API for managing personal workouts. Users can create an account, log in, and manage their workout records securely.
 
-### Features
+## Features
+
 - User registration and JWT authentication.
 - Secure password hashing with Flask-Bcrypt.
-- Create, retrieve, update, and delete workouts.
+- Create, view, update, and delete workouts.
+- Paginated workout listing.
 - User-specific workout access.
-- Paginated workout listings.
-- Database migrations and sample data seeding.
+- SQLite database with Flask-Migrate.
+- Automated tests with pytest.
 
-### Built With
-Python · Flask · Flask-SQLAlchemy · SQLite · Flask-Bcrypt · Flask-JWT-Extended · Flask-Migrate · Pytest
+## Technologies
 
-### Getting Started
+Python, Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-Bcrypt, Flask-JWT-Extended, SQLite, and pytest.
+
+## Setup
 
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/alexsigei/workout-tracker.git
 cd workout-tracker
 ```
 
@@ -28,56 +31,68 @@ Install dependencies:
 pipenv install --dev
 ```
 
-Initialize the database:
+## Database
+
+Apply the existing migrations:
 
 ```bash
 pipenv run flask --app app db upgrade
 ```
 
-Load sample data:
+To populate the database with sample users and workouts:
 
 ```bash
 pipenv run python seed.py
 ```
 
-Start the server:
+**Note:** The seed script clears existing users and workouts before inserting sample data. Use it only when you are comfortable resetting the database.
+
+## Running the Application
+
+Start the development server:
 
 ```bash
 pipenv run flask --app app run --debug
 ```
 
-The API runs at `http://127.0.0.1:5000`.
+The API will be available at `http://127.0.0.1:5000`.
 
-### API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/signup` | Register a user |
-| POST | `/login` | Log in and receive an access token |
+| POST | `/login` | Log in and receive a JWT |
 | GET | `/me` | Get the authenticated user |
-| GET | `/workouts` | List workouts |
-| GET | `/workouts/<id>` | Get a workout |
 | POST | `/workouts` | Create a workout |
+| GET | `/workouts` | List workouts |
+| GET | `/workouts/<id>` | Get a specific workout |
 | PATCH | `/workouts/<id>` | Update a workout |
 | DELETE | `/workouts/<id>` | Delete a workout |
 
-Workout endpoints require a JWT access token in the `Authorization` header:
+### Authentication
 
-```text
+Protected endpoints require a JWT access token in the request header:
+
+```http
 Authorization: Bearer <access_token>
 ```
 
-### Running Tests
+Obtain a token by sending a POST request to `/login` with a username and password.
+
+## Running Tests
+
+Run the test suite:
 
 ```bash
 pipenv run pytest
 ```
 
-### Sample Accounts
+## Sample Login Credentials
+
+After running the seed script:
 
 | Username | Password |
 |---|---|
 | alex | password123 |
 | jane | password123 |
-
-Sample accounts are created by running the seed script.
