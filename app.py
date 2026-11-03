@@ -3,6 +3,7 @@ from config import Config
 from extensions import db, migrate, bcrypt, jwt
 from models import User, Workout
 from resources.auth import auth_bp
+from resources.workouts import workouts_bp
 
 
 def create_app():
@@ -19,6 +20,7 @@ def create_app():
 
     # Register authentication routes
     app.register_blueprint(auth_bp)
+    app.register_blueprint(workouts_bp)
 
     @app.route("/")
     def home():
