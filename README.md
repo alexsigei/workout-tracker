@@ -1,22 +1,29 @@
 # Workout Tracker API
 
-A Flask REST API for managing personal workouts. Users can create an account, log in, and manage their workout records securely.
+A RESTful API built with Flask that allows users to register, authenticate, and manage their personal workout records. JWT authentication protects the API and ensures users can only access their own data.
 
 ## Features
 
-- User registration and JWT authentication.
+- User registration and login.
 - Secure password hashing with Flask-Bcrypt.
-- Create, view, update, and delete workouts.
-- Paginated workout listing.
-- User-specific workout access.
-- SQLite database with Flask-Migrate.
-- Automated tests with pytest.
+- JWT-based authentication.
+- Create, retrieve, update, and delete workouts.
+- User-specific workout records.
+- Paginated workout listings.
+- Database migrations with Flask-Migrate.
 
 ## Technologies
 
-Python, Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-Bcrypt, Flask-JWT-Extended, SQLite, and pytest.
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Flask-Bcrypt
+- Flask-JWT-Extended
+- Flask-Migrate
+- SQLite
+- Pytest
 
-## Setup
+## Installation
 
 Clone the repository:
 
@@ -31,68 +38,89 @@ Install dependencies:
 pipenv install --dev
 ```
 
-## Database
+## Database Setup
 
-Apply the existing migrations:
+Apply the database migrations:
 
 ```bash
 pipenv run flask --app app db upgrade
 ```
 
-To populate the database with sample users and workouts:
+Add sample users and workouts:
 
 ```bash
 pipenv run python seed.py
 ```
 
-**Note:** The seed script clears existing users and workouts before inserting sample data. Use it only when you are comfortable resetting the database.
+**Note:** The seed script clears existing users and workouts before inserting sample data.
 
-## Running the Application
+## Running the API
 
 Start the development server:
 
 ```bash
-pipenv run flask --app app run --debug
+pipenv run flask --app app run
 ```
 
 The API will be available at `http://127.0.0.1:5000`.
 
+To use the supplied JWT frontend client, start the backend on port `5555`:
+
+```bash
+pipenv run flask --app app run --port 5555
+```
+
 ## API Endpoints
+
+### Authentication
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/signup` | Register a user |
-| POST | `/login` | Log in and receive a JWT |
-| GET | `/me` | Get the authenticated user |
+| POST | `/signup` | Register a new user |
+| POST | `/login` | Authenticate and receive a JWT |
+| GET | `/me` | Retrieve the authenticated user's details |
+
+### Workouts
+
+All workout endpoints require a valid JWT.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/workouts` | Retrieve the user's workouts |
 | POST | `/workouts` | Create a workout |
-| GET | `/workouts` | List workouts |
-| GET | `/workouts/<id>` | Get a specific workout |
+| GET | `/workouts/<id>` | Retrieve a specific workout |
 | PATCH | `/workouts/<id>` | Update a workout |
 | DELETE | `/workouts/<id>` | Delete a workout |
 
 ### Authentication
 
-Protected endpoints require a JWT access token in the request header:
+Include the access token in the request header when accessing protected endpoints:
 
 ```http
-Authorization: Bearer <access_token>
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-Obtain a token by sending a POST request to `/login` with a username and password.
+The workout listing endpoint supports pagination through the `page` and `per_page` query parameters.
 
-## Running Tests
+Example:
 
-Run the test suite:
-
-```bash
-pipenv run pytest
+```http
+GET /workouts?page=1&per_page=10
 ```
 
-## Sample Login Credentials
+## Sample Accounts
 
-After running the seed script:
+The seed script creates two accounts:
 
 | Username | Password |
 |---|---|
 | alex | password123 |
 | jane | password123 |
+
+## Running Tests
+
+Run the automated test suite:
+
+```bash
+pipenv run pytest -v
+```
